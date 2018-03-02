@@ -1,0 +1,27 @@
+version: '3'
+services:
+  
+  ptbot:
+    image: darrenchwu/jdk8-supervisor
+    container_name: ptbot-jdk8-supervisor
+    restart: unless-stopped
+    command: supervisord -c /etc/supervisor/supervisord.conf
+    ports:
+      - "9001:9001"
+    volumes:
+      - ./ProfitTrailer:/root/ProfitTrailer
+      - ./docker-config/pt-supervisord.conf:/etc/supervisor/conf.d/pt-supervisord.conf
+    environment:
+      - TZ=Asia/Taipei
+
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: nginx-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker-config/pt-site.conf:/etc/nginx/conf.d/default.conf
+    links:
+      - ptbot:ptbot-app
+
